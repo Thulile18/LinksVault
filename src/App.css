@@ -1,0 +1,25 @@
+link-grid {
+  display: grid;              
+  grid-template-columns: 1fr; 
+  gap: 20px;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 900px; 
+  }
+  .link-grid {
+    grid-template-columns: repeat(2, 1fr); /
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 1140px; 
+  }
+  .link-grid {
+    grid-template-columns: repeat(3, 1fr); 
+  }
+}
