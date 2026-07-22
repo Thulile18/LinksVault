@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Link } from '../Types'; 
+import type { Link } from '../Types/Types'; 
 
 interface LinkItemProps {
   link: Link;

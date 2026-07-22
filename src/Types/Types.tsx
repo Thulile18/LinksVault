@@ -11,5 +11,5 @@ export interface LinkFormData {
   title: string;
   url: string;
   description: string;
-  tags: string;
+  tags?: string;
 }

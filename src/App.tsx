@@ -4,7 +4,7 @@ import Header from './Components/Header';
 import SearchBar from './Components/SearchBar';
 import LinkForm from './Components/LinkFormData';
 import LinkList from './Components/LinkList';
-import type { Link, LinkFormData } from './Types';
+import type { Link, LinkFormData } from './Types/Types';
 
 const App: React.FC = () => {
   const [links, setLinks] = useState<Link[]>([]);

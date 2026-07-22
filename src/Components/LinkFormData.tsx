@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { LinkFormData } from '../Types';
+import type { LinkFormData } from '../Types/Types';
 
 interface LinkFormProps {
   onAddLink: (link: LinkFormData) => void;
