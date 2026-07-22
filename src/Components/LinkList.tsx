@@ -1,12 +1,12 @@
-import type { LinkItem } from './Types';
+import type { Link } from '../Types'; 
 
 interface LinkListProps {
-  links: LinkItem[];
+  links: Link[];
   onDelete: (id: string) => void;
-  onEdit: (link: LinkItem) => void; 
+  onUpdate: (id: string, updatedLink: Partial<Link>) => void; 
 }
 
-export default function LinkList({ links, onDelete, onEdit }: LinkListProps) {
+export default function LinkList({ links, onDelete, onUpdate }: LinkListProps) {
   if (links.length === 0) {
     return <p className="empty-message">Your vault is empty. Add your first link above!</p>;
   }
@@ -24,7 +24,7 @@ export default function LinkList({ links, onDelete, onEdit }: LinkListProps) {
             
             {link.tags.length > 0 && (
               <div className="tags-container">
-                {link.tags.map((tag, index) => (
+                {link.tags.map((tag: string, index: number) => (
                   <span key={index} className="tag-pill">#{tag}</span>
                 ))}
               </div>
@@ -32,11 +32,10 @@ export default function LinkList({ links, onDelete, onEdit }: LinkListProps) {
           </div>
 
           <div className="card-actions" style={{ gap: '12px' }}>
-            
             <button 
-              className="delete-btn" 
-              onClick={() => onEdit(link)} 
-              style={{ color: '#4f46e5', background: 'none' }}
+              className="edit-btn"
+              onClick={() => onUpdate(link.id, link)} 
+              style={{ color: '#4f46e5', background: 'none', border: 'none', cursor: 'pointer' }}
             >
                Edit
             </button>
