@@ -65,7 +65,7 @@ const LinkForm: React.FC<LinkFormProps> = ({ onAddLink }) => {
       <h2>Add New Link</h2>
       
       <div className="form-group">
-        <label htmlFor="title">Title *</label>
+        <label htmlFor="title"> Title </label>
         <input
           type="text"
           id="title"
@@ -79,7 +79,7 @@ const LinkForm: React.FC<LinkFormProps> = ({ onAddLink }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="url">URL *</label>
+        <label htmlFor="url"> URL </label>
         <input
           type="text"
           id="url"
@@ -93,7 +93,7 @@ const LinkForm: React.FC<LinkFormProps> = ({ onAddLink }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="description">Description *</label>
+        <label htmlFor="description"> Description </label>
         <textarea
           id="description"
           name="description"
@@ -107,7 +107,7 @@ const LinkForm: React.FC<LinkFormProps> = ({ onAddLink }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="tags">Tags (optional)</label>
+        <label htmlFor="tags"> Tags (optional)</label>
         <input
           type="text"
           id="tags"
