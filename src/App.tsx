@@ -1,71 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import Header from './Components/Header';
 import SearchBar from './Components/SearchBar';
 import LinkForm from './Components/LinkFormData';
 import LinkList from './Components/LinkList';
-import type { Link, LinkFormData } from './Types/Types';
+import type { Link, LinkFormData } from './Types';
 
-const App: React.FC = () => {
+function App() {
   const [links, setLinks] = useState<Link[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    const storedLinks = localStorage.getItem('links');
-    if (storedLinks) {
+    console.log(' Looking for saved links...');
+    const savedLinks = localStorage.getItem('links');
+    
+    if (savedLinks) {
       try {
-        setLinks(JSON.parse(storedLinks));
+        const parsedLinks = JSON.parse(savedLinks);
+        console.log(' Found', parsedLinks.length, 'saved links');
+        setLinks(parsedLinks);
       } catch (error) {
-        console.error('Error loading links:', error);
+        console.error(' Error reading saved links:', error);
+        setLinks([]);
       }
+    } else {
+      console.log(' No saved links found');
+      setLinks([]);
     }
   }, []);
 
   useEffect(() => {
+    console.log(' Saving', links.length, 'links to localStorage');
     localStorage.setItem('links', JSON.stringify(links));
   }, [links]);
 
-  const showNotification = (message: string, type: 'success' | 'error') => {
+  function showNotification(message: string, type: 'success' | 'error') {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
-  };
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  }
 
-  const addLink = (formData: LinkFormData) => {
+  function addLink(formData: LinkFormData) {
+    console.log(' Adding new link...');
+    
     const newLink: Link = {
       id: Date.now().toString(),
       title: formData.title.trim(),
       url: formData.url.trim(),
       description: formData.description.trim(),
-      tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag) : [],
+      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
       createdAt: new Date().toISOString(),
     };
 
-    setLinks(prev => [newLink, ...prev]);
+    console.log(' New link:', newLink.title);
+    setLinks([newLink, ...links]);
     showNotification('Link saved successfully!', 'success');
-  };
+  }
 
-  const deleteLink = (id: string) => {
-    setLinks(prev => prev.filter((link: Link) => link.id !== id));
+  function deleteLink(id: string) {
+    console.log(' Deleting link...');
+    setLinks(links.filter(link => link.id !== id));
     showNotification('Link deleted successfully!', 'success');
-  };
+  }
 
-  const updateLink = (id: string, updatedData: Partial<Link>) => {
-    setLinks(prev =>
-      prev.map((link: Link) =>
-        link.id === id ? { ...link, ...updatedData } : link
-      )
+  function updateLink(id: string, updatedData: Partial<Link>) {
+    console.log(' Updating link...');
+    setLinks(
+      links.map(link => {
+        if (link.id === id) {
+          return { ...link, ...updatedData };
+        }
+        return link;
+      })
     );
     showNotification('Link updated successfully!', 'success');
-  };
+  }
 
-  const filteredLinks = links.filter((link: Link) => {
-    const searchLower = searchTerm.toLowerCase();
+  const filteredLinks = links.filter(link => {
+    const search = searchTerm.toLowerCase();
     return (
-      link.title.toLowerCase().includes(searchLower) ||
-      link.description.toLowerCase().includes(searchLower) ||
-      link.url.toLowerCase().includes(searchLower) ||
-      link.tags.some((tag: string) => tag.toLowerCase().includes(searchLower))
+      link.title.toLowerCase().includes(search) ||
+      link.description.toLowerCase().includes(search) ||
+      link.url.toLowerCase().includes(search) ||
+      link.tags.some(tag => tag.toLowerCase().includes(search))
     );
   });
 
@@ -87,7 +106,7 @@ const App: React.FC = () => {
         <div className="right-section">
           <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           <div className="link-count">
-            {filteredLinks.length} {filteredLinks.length === 1 ? 'link' : 'links'} found
+            {filteredLinks.length} {filteredLinks.length === 1 ? 'link' : 'links'} 
           </div>
           <LinkList 
             links={filteredLinks} 
@@ -98,6 +117,6 @@ const App: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default App;

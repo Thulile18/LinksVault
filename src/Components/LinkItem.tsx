@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Link } from '../Types/Types'; 
+import type { Link } from '../Types'; 
 
 interface LinkItemProps {
   link: Link;
@@ -8,6 +8,7 @@ interface LinkItemProps {
 }
 
 const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     title: link.title,
@@ -25,7 +26,7 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
       title: editData.title,
       url: editData.url,
       description: editData.description,
-      tags: editData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      tags: editData.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag),
     });
     setIsEditing(false);
   };
@@ -59,6 +60,7 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
           value={editData.description}
           onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
           placeholder="Description"
+          rows={3}
         />
         <input
           type="text"
@@ -67,8 +69,8 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
           placeholder="Tags (comma separated)"
         />
         <div className="item-actions">
-          <button onClick={handleSave} className="save-btn">Save</button>
-          <button onClick={handleCancel} className="cancel-btn">Cancel</button>
+          <button onClick={handleSave} className="save-btn"> Save </button>
+          <button onClick={handleCancel} className="cancel-btn"> Cancel </button>
         </div>
       </div>
     );
@@ -84,7 +86,7 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
         <p className="link-description">{link.description}</p>
         {link.tags.length > 0 && (
           <div className="link-tags">
-           {link.tags.map((tag, index: number) => (
+            {link.tags.map((tag: string, index: number) => (
               <span key={index} className="tag">#{tag}</span>
             ))}
           </div>
@@ -92,8 +94,8 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
         <small className="link-date">Added: {new Date(link.createdAt).toLocaleDateString()}</small>
       </div>
       <div className="item-actions">
-        <button onClick={handleEdit} className="edit-btn"> Edit</button>
-        <button onClick={() => onDelete(link.id)} className="delete-btn"> Delete</button>
+        <button onClick={handleEdit} className="edit-btn"> Edit </button>
+        <button onClick={() => onDelete(link.id)} className="delete-btn"> Delete </button>
       </div>
     </div>
   );

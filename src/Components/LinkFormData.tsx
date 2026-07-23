@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { LinkFormData } from '../Types/Types';
+import type { LinkFormData } from '../Types';
 
 interface LinkFormProps {
   onAddLink: (link: LinkFormData) => void;
@@ -62,7 +62,7 @@ const LinkForm: React.FC<LinkFormProps> = ({ onAddLink }) => {
 
   return (
     <form className="link-form" onSubmit={handleSubmit}>
-      <h2>Add New Link</h2>
+      <h2> Add New Link </h2>
       
       <div className="form-group">
         <label htmlFor="title"> Title </label>
