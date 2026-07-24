@@ -2,13 +2,12 @@ import React from 'react';
 import type { Link } from '../Types';  
 import LinkItem from './LinkItem';
 
-interface LinkListProps {
   links: Link[];
   onDelete: (id: string) => void;
   onUpdate: (id: string, updatedLink: Partial<Link>) => void;
 }
 
-const LinkList: React.FC<LinkListProps> = ({ links, onDelete, onUpdate }) => {
+export default function LinkList({ links, onDelete, onUpdate }: LinkListProps) {
   
   if (links.length === 0) {
     return (
@@ -20,16 +19,16 @@ const LinkList: React.FC<LinkListProps> = ({ links, onDelete, onUpdate }) => {
 
   return (
     <div className="link-list">
-      {links.map((link: Link) => (
-        <LinkItem
-          key={link.id}
-          link={link}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
-        />
-      ))}
+      {links.map((link: Link) => {
+        return (
+          <LinkItem
+            key={link.id}
+            link={link}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+          />
+        );
+      })}
     </div>
   );
-};
-
-export default LinkList;
+}
