@@ -7,65 +7,74 @@ interface LinkItemProps {
   onUpdate: (id: string, updatedLink: Partial<Link>) => void;
 }
 
-const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
+export default function LinkItem({ link, onDelete, onUpdate }: LinkItemProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const [editTitle, setEditTitle] = useState<string>(link.title);
+  const [editUrl, setEditUrl] = useState<string>(link.url);
+  const [editDescription, setEditDescription] = useState<string>(link.description);
   
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    title: link.title,
-    url: link.url,
-    description: link.description,
-    tags: link.tags.join(', '),
-  });
+  const [editTags, setEditTags] = useState<string>(link.tags.join(', '));
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
   const handleSave = () => {
+    const rawTags = editTags.split(',');
+    const cleanTagsArray: string[] = [];
+
+    for (let i = 0; i < rawTags.length; i++) {
+      const trimmedTag = rawTags[i].trim();
+      if (trimmedTag !== '') {
+        cleanTagsArray.push(trimmedTag);
+      }
+    }
+
     onUpdate(link.id, {
-      title: editData.title,
-      url: editData.url,
-      description: editData.description,
-      tags: editData.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag),
+      title: editTitle,
+      url: editUrl,
+      description: editDescription,
+      tags: cleanTagsArray,
     });
+
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditData({
-      title: link.title,
-      url: link.url,
-      description: link.description,
-      tags: link.tags.join(', '),
-    });
+    
+    setEditTitle(link.title);
+    setEditUrl(link.url);
+    setEditDescription(link.description);
+    setEditTags(link.tags.join(', '));
   };
 
-  if (isEditing) {
+  if (isEditing === true) {
     return (
       <div className="link-item editing">
         <input
           type="text"
-          value={editData.title}
-          onChange={(e) => setEditData(prev => ({ ...prev, title: e.target.value }))}
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
           placeholder="Title"
         />
         <input
           type="text"
-          value={editData.url}
-          onChange={(e) => setEditData(prev => ({ ...prev, url: e.target.value }))}
+          value={editUrl}
+          onChange={(e) => setEditUrl(e.target.value)}
           placeholder="URL"
         />
         <textarea
-          value={editData.description}
-          onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
+          value={editDescription}
+          onChange={(e) => setEditDescription(e.target.value)}
           placeholder="Description"
           rows={3}
         />
         <input
           type="text"
-          value={editData.tags}
-          onChange={(e) => setEditData(prev => ({ ...prev, tags: e.target.value }))}
+          value={editTags}
+          onChange={(e) => setEditTags(e.target.value)}
           placeholder="Tags (comma separated)"
         />
         <div className="item-actions">
@@ -84,6 +93,7 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
           {link.url}
         </a>
         <p className="link-description">{link.description}</p>
+        
         {link.tags.length > 0 && (
           <div className="link-tags">
             {link.tags.map((tag: string, index: number) => (
@@ -91,7 +101,10 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
             ))}
           </div>
         )}
-        <small className="link-date">Added: {new Date(link.createdAt).toLocaleDateString()}</small>
+        
+        <small className="link-date">
+          Added: {new Date(link.createdAt).toLocaleDateString()}
+        </small>
       </div>
       <div className="item-actions">
         <button onClick={handleEdit} className="edit-btn"> Edit </button>
@@ -99,7 +112,5 @@ const LinkItem: React.FC<LinkItemProps> = ({ link, onDelete, onUpdate }) => {
       </div>
     </div>
   );
-};
-
-export default LinkItem;
+}
 
