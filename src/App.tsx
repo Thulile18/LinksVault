@@ -1,100 +1,146 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './Components/Header';
 import SearchBar from './Components/SearchBar';
-import LinkForm from './Components/LinkFormData';
+import LinkForm from './Components/LinkForm'; 
 import LinkList from './Components/LinkList';
 import type { Link, LinkFormData } from './Types';
 
-function App() {
+export default function App() {
   const [links, setLinks] = useState<Link[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  
+  const [alertMessage, setAlertMessage] = useState<string>('');
+  const [alertType, setAlertType] = useState<string>('');
 
   useEffect(() => {
-    console.log(' Looking for saved links...');
     const savedLinks = localStorage.getItem('links');
     
-    if (savedLinks) {
+    if (savedLinks !== null && savedLinks !== '') {
       try {
         const parsedLinks = JSON.parse(savedLinks);
-        console.log(' Found', parsedLinks.length, 'saved links');
         setLinks(parsedLinks);
       } catch (error) {
-        console.error(' Error reading saved links:', error);
         setLinks([]);
       }
     } else {
-      console.log(' No saved links found');
       setLinks([]);
     }
   }, []);
 
   useEffect(() => {
-    console.log(' Saving', links.length, 'links to localStorage');
     localStorage.setItem('links', JSON.stringify(links));
   }, [links]);
 
-  function showNotification(message: string, type: 'success' | 'error') {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  }
-
-  function addLink(formData: LinkFormData) {
-    console.log(' Adding new link...');
+  const triggerNotification = (message: string, type: string) => {
+    setAlertMessage(message);
+    setAlertType(type);
     
-    const newLink: Link = {
+    setTimeout(() => {
+      setAlertMessage('');
+      setAlertType('');
+    }, 3000);
+  };
+
+  const addLink = (formData: LinkFormData) => {
+    const rawTags = formData.tags.split(',');
+    const cleanTags: string[] = [];
+
+    for (let i = 0; i < rawTags.length; i++) {
+      const currentTag = rawTags[i].trim();
+      if (currentTag !== '') {
+        cleanTags.push(currentTag);
+      }
+    }
+
+    const newLinkObject: Link = {
       id: Date.now().toString(),
       title: formData.title.trim(),
       url: formData.url.trim(),
       description: formData.description.trim(),
-      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
-      createdAt: new Date().toISOString(),
+      tags: cleanTags,
+      createdAt: new Date().toISOString()
     };
 
-    console.log(' New link:', newLink.title);
-    setLinks([newLink, ...links]);
-    showNotification('Link saved successfully!', 'success');
-  }
+    const updatedLinksList = [newLinkObject, ...links];
+    setLinks(updatedLinksList);
+    
+    triggerNotification('Link saved successfully!', 'success');
+  };
 
-  function deleteLink(id: string) {
-    console.log(' Deleting link...');
-    setLinks(links.filter(link => link.id !== id));
-    showNotification('Link deleted successfully!', 'success');
-  }
+  const deleteLink = (id: string) => {
+    const keptLinks: Link[] = [];
 
-  function updateLink(id: string, updatedData: Partial<Link>) {
-    console.log(' Updating link...');
-    setLinks(
-      links.map(link => {
-        if (link.id === id) {
-          return { ...link, ...updatedData };
+    for (let i = 0; i < links.length; i++) {
+      if (links[i].id !== id) {
+        keptLinks.push(links[i]);
+      }
+    }
+
+    setLinks(keptLinks);
+    triggerNotification('Link deleted successfully!', 'success');
+  };
+
+  const updateLink = (id: string, updatedData: Partial<Link>) => {
+    const freshLinksList: Link[] = [];
+
+    for (let i = 0; i < links.length; i++) {
+      const currentLink = links[i];
+
+      if (currentLink.id === id) {
+        const changedLink: Link = {
+          id: currentLink.id,
+          title: updatedData.title !== undefined ? updatedData.title : currentLink.title,
+          url: updatedData.url !== undefined ? updatedData.url : currentLink.url,
+          description: updatedData.description !== undefined ? updatedData.description : currentLink.description,
+          tags: updatedData.tags !== undefined ? updatedData.tags : currentLink.tags,
+          createdAt: currentLink.createdAt
+        };
+        freshLinksList.push(changedLink);
+      } else {
+        freshLinksList.push(currentLink);
+      }
+    }
+
+    setLinks(freshLinksList);
+    triggerNotification('Link updated successfully!', 'success');
+  };
+
+  const getFilteredLinks = () => {
+    const matchedLinks: Link[] = [];
+    const lowerSearch = searchTerm.toLowerCase();
+
+    for (let i = 0; i < links.length; i++) {
+      const item = links[i];
+
+      const titleMatches = item.title.toLowerCase().includes(lowerSearch);
+      const descMatches = item.description.toLowerCase().includes(lowerSearch);
+      const urlMatches = item.url.toLowerCase().includes(lowerSearch);
+
+      let tagMatches = false;
+      for (let j = 0; j < item.tags.length; j++) {
+        if (item.tags[j].toLowerCase().includes(lowerSearch)) {
+          tagMatches = true;
         }
-        return link;
-      })
-    );
-    showNotification('Link updated successfully!', 'success');
-  }
+      }
 
-  const filteredLinks = links.filter(link => {
-    const search = searchTerm.toLowerCase();
-    return (
-      link.title.toLowerCase().includes(search) ||
-      link.description.toLowerCase().includes(search) ||
-      link.url.toLowerCase().includes(search) ||
-      link.tags.some(tag => tag.toLowerCase().includes(search))
-    );
-  });
+      if (titleMatches || descMatches || urlMatches || tagMatches) {
+        matchedLinks.push(item);
+      }
+    }
+
+    return matchedLinks;
+  };
+
+  const currentDisplayList = getFilteredLinks();
 
   return (
     <div className="app">
       <Header />
       
-      {notification && (
-        <div className={`notification ${notification.type}`}>
-          {notification.message}
+      {alertMessage !== '' && (
+        <div className={`notification ${alertType}`}>
+          {alertMessage}
         </div>
       )}
 
@@ -105,11 +151,13 @@ function App() {
         
         <div className="right-section">
           <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+          
           <div className="link-count">
-            {filteredLinks.length} {filteredLinks.length === 1 ? 'link' : 'links'} 
+            {currentDisplayList.length === 1 ? '1 link found' : `${currentDisplayList.length} links found`}
           </div>
+          
           <LinkList 
-            links={filteredLinks} 
+            links={currentDisplayList} 
             onDelete={deleteLink}
             onUpdate={updateLink}
           />
@@ -118,5 +166,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
