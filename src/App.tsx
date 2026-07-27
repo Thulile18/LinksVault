@@ -65,7 +65,7 @@ export default function App() {
     const updatedLinksList = [newLinkObject, ...links];
     setLinks(updatedLinksList);
     
-    triggerNotification('Link saved successfully!', 'success');
+    triggerNotification('Link saved successfully', 'success');
   };
 
   const deleteLink = (id: string) => {
